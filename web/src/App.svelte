@@ -279,6 +279,7 @@
         rel="noopener noreferrer">ahura</a
       >
       · everything happens on your phone, nothing is uploaded
+      <span class="text-[#a98fb8]">( for my love eghlima to make her life easier )</span>
     </p>
     <a
       class="pill bg-cream/80 text-[#6b4a8a]"

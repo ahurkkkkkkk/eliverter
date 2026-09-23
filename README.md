@@ -5,7 +5,8 @@ SQLite, FFmpeg pipeline, SIMD analysis kernels, Svelte 5 frontend, packaged as a
 **fully on-device Android app** — no server, no uploads.
 
 Named **Eliverter** (the original brief spelled it "Ehliverter"). Made by
-[ahura](https://ahura.site/resume).
+[ahura](https://ahura.site/resume) — for my love eghlima, to make her life easier.
+The same dedication is in the app's footer.
 
 ## Background erasure
 
