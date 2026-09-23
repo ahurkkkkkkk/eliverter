@@ -2,10 +2,10 @@
 
 Pastel neon media sanctuary and conversion playground. Go + Gin backend, embedded
 SQLite, FFmpeg pipeline, SIMD analysis kernels, Svelte 5 frontend, packaged as a
-**fully on-device Android app** — no server, no uploads.
+**fully on-device Android app**: no server, no uploads.
 
 Named **Eliverter** (the original brief spelled it "Ehliverter"). Made by
-[ahura](https://ahura.site/resume) — for my love eghlima, to make her life easier.
+[ahura](https://ahura.site/resume), for my love eghlima, to make her life easier.
 The same dedication is in the app's footer.
 
 ## Background erasure
@@ -27,7 +27,7 @@ one colour the request is rejected with 422 and a suggestion to name the colour
 yourself, rather than returning a file with holes punched in the subject.
 
 This is colour keying, not ML matting. The app is fully offline and ships no
-inference runtime, so there is no segmentation model — a flat or single-colour
+inference runtime, so there is no segmentation model. A flat or single-colour
 backdrop works, a cluttered photograph will not. Adding real matting means an
 ONNX runtime plus model weights in the APK, which is a separate decision.
 
@@ -122,7 +122,7 @@ spring curve, the idle bob / dragover squash / drop wobble keyframes, and the
 candy-cane animated border for the dropzone. All motion is disabled under
 `prefers-reduced-motion`.
 
-Sound is generated at call time by `web/src/lib/audio.ts` — oscillator sweeps
+Sound is generated at call time by `web/src/lib/audio.ts`: oscillator sweeps
 only, zero audio files. Confetti, hearts and sparkles are drawn in
 `web/src/lib/fx.ts`.
 
@@ -143,7 +143,7 @@ On an Android 15 (API 35) x86_64 emulator, with the APK installed and running:
   301 KB, Discord emote 128x128 GIF / 178 KB, Discord reaction 128x96 / 6.9 KB.
 - Completion events reach the WebView over the WebSocket while it is open.
 - Background erasure on the phone: a green-backdrop clip keyed to WebM, GIF and
-  PNG decodes back with `corner_alpha=0, centre_alpha=255` — backdrop gone,
+  PNG decodes back with `corner_alpha=0, centre_alpha=255`: backdrop gone,
   subject intact. Asking for `mp4` is rejected with an explanation instead of
   quietly returning an opaque file.
 - Background erasure driven from the WebView, not just the API: the panel sends
@@ -158,7 +158,7 @@ On an Android 15 (API 35) x86_64 emulator, with the APK installed and running:
   below.
 - Erased ready packs: `discord_emote` renders a 128x128 GIF with a transparent
   corner and an opaque subject, and `telegram_animated` a 512x512 WebM with
-  `alpha_mode` set — both under their size ceilings.
+  `alpha_mode` set, both under their size ceilings.
 - `go test ./...` green, including end-to-end FFmpeg conversions, every pack's
   size ceiling, exact canvas, frame rate and alpha rules, and pixel-level
   assertions that the erased alpha is real rather than just requested.
@@ -174,9 +174,9 @@ On an Android 15 (API 35) x86_64 emulator, with the APK installed and running:
 - **The erase panel's native colour dialog was never opened on Android.** The
   `<input type="color">` behind "this colour" is rendered by the system, and the
   emulator runs headless, so only the web build's picker was exercised. Auto
-  mode — the default, and the one that avoids that dialog — is verified on the
+  mode, the default and the one that avoids that dialog, is verified on the
   phone.
-- **JPEG XL cannot be encoded** — no libjxl. The API rejects it at submit time
+- **JPEG XL cannot be encoded**: no libjxl. The API rejects it at submit time
   with `no usable encoder in this FFmpeg build`, which is the intended
   behaviour, and JXL still decodes.
 - **HEVC has no software encoder.** x265 is deliberately not built: it is the
@@ -187,7 +187,7 @@ On an Android 15 (API 35) x86_64 emulator, with the APK installed and running:
   `std` package, so even `print()` fails. `mojo/media_accelerator.mojo` was
   rewritten for Mojo 1.0 syntax (`fn` was removed in favour of `def`, which the
   compiler confirmed) but its SIMD intrinsics are **unverified**. The portable C
-  kernels are the implemented path — and the only one that can reach Android,
+  kernels are the implemented path, and the only one that can reach Android,
   since Mojo has no Android target.
 - `cmd/eliverter-mobile` (the c-shared JNI entry point) builds but is unused by
   the APK, which uses the child-process model.

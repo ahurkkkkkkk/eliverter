@@ -71,7 +71,7 @@
         // A file that cannot be probed can never be converted, so it must not
         // sit in the waiting list inviting the user to retry the same failure.
         const reason = err instanceof Error ? err.message : String(err);
-        rejected = [...rejected, `${file.name} — ${reason}`];
+        rejected = [...rejected, `${file.name}: ${reason}`];
       }
     }
 
@@ -105,8 +105,8 @@
     return [
       { k: 'container', v: info.container || info.format.format_name },
       { k: 'length', v: `${info.duration_seconds.toFixed(2)}s` },
-      { k: 'video', v: info.video_codec ? `${info.video_codec} ${size}` : '—' },
-      { k: 'audio', v: info.audio_codec ? `${info.audio_codec} · ${info.sample_rate}Hz` : '—' },
+      { k: 'video', v: info.video_codec ? `${info.video_codec} ${size}` : '-' },
+      { k: 'audio', v: info.audio_codec ? `${info.audio_codec} · ${info.sample_rate}Hz` : '-' },
     ];
   }
 </script>
@@ -203,7 +203,7 @@
       />
     {:else if erasing}
       <p class="mt-3 text-xs font-semibold text-[#a03a5f]">
-        {target} cannot keep transparency, so the background stays put — switch to
+        {target} cannot keep transparency, so the background stays put. Switch to
         WebM, GIF, WebP or PNG to erase it
       </p>
     {/if}
@@ -264,7 +264,7 @@
       <JobCard {job} />
     {:else}
       <p class="card p-5 text-center text-sm text-[#8a6f9b]">
-        nothing yet — drop something in and I’ll get right on it ♡
+        nothing yet. Drop something in and I’ll get right on it ♡
       </p>
     {/each}
   </section>

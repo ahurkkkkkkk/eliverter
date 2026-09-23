@@ -87,7 +87,7 @@
     </div>
 
     <p class="w-full text-[11px] text-[#9c85ab]">
-      transparency survives in {targets.join(', ')} — pick one of those to turn this on
+      transparency survives in {targets.join(', ')}, so pick one of those to turn this on
     </p>
   {/if}
 </div>

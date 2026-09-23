@@ -1,6 +1,6 @@
 /**
  * Procedural sound engine. Every effect is synthesised at call time from
- * oscillators and filters — there are no audio files in this app, so the whole
+ * oscillators and filters - there are no audio files in this app, so the whole
  * soundtrack costs zero bytes and stays offline-capable on device.
  */
 

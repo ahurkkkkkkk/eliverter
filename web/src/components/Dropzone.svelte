@@ -75,7 +75,7 @@
   </div>
 
   <p class="text-xl font-extrabold text-[#5b3a6b]">
-    {over ? 'Yes yes yes — let it go!' : 'Toss your file in here ♡'}
+    {over ? 'Yes yes yes, let it go!' : 'Toss your file in here ♡'}
   </p>
   <p class="max-w-sm text-sm text-[#8a6f9b]">
     Video, audio, GIF, PNG or one of those mysterious retro files from an old

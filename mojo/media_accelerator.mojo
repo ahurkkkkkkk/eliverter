@@ -1,10 +1,10 @@
-# Eliverter compute accelerator (Mojo) — DESKTOP / SERVER PATH ONLY
+# Eliverter compute accelerator (Mojo) - DESKTOP / SERVER PATH ONLY
 #
 # STATUS: NOT COMPILED IN THIS ENVIRONMENT.
 # The local Mojo 1.0 SDK at /root/hbrowser/mojo-home is missing its `std`
 # package, so even `def main(): print(...)` fails with "unable to locate module
 # 'std'". Everything below is therefore unverified against a compiler. Treat the
-# portable C kernels in go/internal/accel as the implemented path — they are
+# portable C kernels in go/internal/accel as the implemented path - they are
 # built, unit-tested, and are the only ones that can reach Android anyway.
 #
 # To verify or build:

@@ -30,7 +30,7 @@ import java.util.ArrayList;
  * Hosts the Go conversion service as a child process and shows its UI.
  *
  * The server binary ships in jniLibs under a lib*.so name so Android extracts it
- * into nativeLibraryDir — the only app-owned location that stays executable on
+ * into nativeLibraryDir - the only app-owned location that stays executable on
  * Android 10 and later. FFmpeg is packaged the same way.
  */
 public final class MainActivity extends Activity {

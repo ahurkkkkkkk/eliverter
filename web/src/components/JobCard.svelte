@@ -10,7 +10,7 @@
   const pct = $derived(Math.min(100, Math.round(job.progress_pct)));
 
   function bytes(n: number): string {
-    if (!n) return '—';
+    if (!n) return '-';
     if (n > 1 << 20) return `${(n / (1 << 20)).toFixed(2)} MB`;
     return `${Math.max(1, Math.round(n / 1024))} KB`;
   }

@@ -54,7 +54,7 @@ for d in "$APP"/libs/*/; do
   printf '  %-12s %s\n' "$abi" "$(ls "$STAGE/lib/$abi" | tr '\n' ' ')"
 done
 if [ ${#abis[@]} -eq 0 ]; then
-  echo "  no .so files under $APP/libs — run scripts/cross-go-all.sh first"
+  echo "  no .so files under $APP/libs - run scripts/cross-go-all.sh first"
   exit 1
 fi
 for required in libeliverter_srv.so libffmpeg_cli.so; do
