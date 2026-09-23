@@ -14,24 +14,46 @@
     value = 'webm',
     onchange,
     label = 'turn it into',
+    open = $bindable(false),
   }: {
     options: Option[];
     value?: string;
     onchange: (key: string) => void;
     label?: string;
+    open?: boolean;
   } = $props();
 
-  let open = $state(false);
-  // The parent's `value` stays the source of truth until the user picks; a
-  // local override is kept separately rather than snapshotting a prop into
-  // state, which would go stale on the next parent render.
-  let chosen = $state<string | null>(null);
-  let current = $derived(chosen ?? value);
+  // The parent card owns the stacking order, so it has to know the bubble is
+  // out: .card sets backdrop-filter, which makes every sibling card its own
+  // stacking context, and a later sibling paints over this z-30 unless the
+  // section holding it is lifted too.
   let root: HTMLDivElement | undefined = $state();
+  let trigger: HTMLButtonElement | undefined = $state();
+  let drop = $state<'down' | 'up'>('down');
+  let maxHeight = $state('20rem');
+
+  let chosen = $state<string | null>(null);
+  // A local override is kept separately rather than snapshotting a prop into
+  // state, which would go stale on the next parent render.
+  let current = $derived(chosen ?? value);
 
   let selected = $derived(
     options.find((o) => o.key === current) ?? { key: current, label: current.toUpperCase() },
   );
+
+  /** Fit the bubble in the space that is actually left on screen. */
+  function measure(): void {
+    if (!trigger) return;
+    const r = trigger.getBoundingClientRect();
+    // The floating status line is z-40 like this card, and later in the DOM, so
+    // the bubble has to stop above it rather than trade pixels with it.
+    const bar = document.querySelector<HTMLElement>('[aria-live="polite"]')?.offsetHeight ?? 0;
+    const below = innerHeight - r.bottom - 20 - bar;
+    const above = r.top - 20;
+    drop = below < 160 && above > below ? 'up' : 'down';
+    const room = drop === 'up' ? above : below;
+    maxHeight = `${Math.round(Math.min(320, Math.max(160, room)))}px`;
+  }
 
   function toggle(): void {
     unlock();
@@ -55,6 +77,10 @@
   }
 
   $effect(() => {
+    if (open) measure();
+  });
+
+  $effect(() => {
     if (!open) return;
     const away = (e: PointerEvent): void => {
       if (root && !root.contains(e.target as Node)) open = false;
@@ -71,6 +97,7 @@
 
   <button
     type="button"
+    bind:this={trigger}
     class="btn flex items-center gap-2 min-w-52 justify-between"
     aria-haspopup="true"
     aria-expanded={open}
@@ -92,8 +119,10 @@
   {#if open}
     <ul
       aria-label={label}
-      class="card absolute z-30 mt-2 max-h-80 w-full min-w-64 overflow-y-auto p-2 list-none"
-      style="transform-origin: top center;"
+      class="card absolute z-30 w-full min-w-64 overflow-y-auto p-2 list-none {drop === 'up'
+        ? 'bottom-full mb-2'
+        : 'mt-2'}"
+      style="transform-origin: {drop === 'up' ? 'bottom' : 'top'} center; max-height: {maxHeight};"
     >
       {#each options as option, i (option.key)}
         <li class="stagger" style="--i: {i}">

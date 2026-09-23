@@ -4,6 +4,7 @@
   import Dropzone from './components/Dropzone.svelte';
   import FormatMenu, { type Option } from './components/FormatMenu.svelte';
   import JobCard from './components/JobCard.svelte';
+  import Kitty from './components/Kitty.svelte';
   import Sparkles from './components/Sparkles.svelte';
   import { probe } from './lib/api';
   import { app, MASCOT, say } from './lib/state.svelte';
@@ -30,6 +31,7 @@
   let rejected = $state<string[]>([]);
   let muted = $state(isMuted());
   let erasing = $state(false);
+  let menuOpen = $state(false);
   let eraseMode = $state<'auto' | 'color'>('auto');
   let keyColor = $state('#00ff00');
 
@@ -122,6 +124,14 @@
       </p>
     </div>
 
+    <div
+      class="grid size-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-cotton/35 to-babysky/35"
+      style="box-shadow: var(--shadow-rest);"
+      title="{MASCOT}"
+    >
+      <Kitty size={38} />
+    </div>
+
     <button
       type="button"
       class="pill flex shrink-0 items-center gap-2 whitespace-nowrap bg-cream/90 text-[#6b4a8a]"
@@ -164,17 +174,22 @@
     </section>
   {/if}
 
-  <section class="card p-4">
+  <section class="card p-4 {menuOpen ? 'relative z-40' : ''}">
     <div class="flex flex-wrap items-end gap-4">
-      <FormatMenu options={formats} value={target} onchange={(k) => (target = k)} />
+      <FormatMenu
+        options={formats}
+        value={target}
+        bind:open={menuOpen}
+        onchange={(k) => (target = k)}
+      />
 
       <button
         type="button"
-        class="btn ml-auto disabled:opacity-50"
+        class="btn flex items-center gap-2 ml-auto disabled:opacity-50"
         disabled={!staged.length || app.busy}
         onclick={convertAll}
       >
-        <Sparkle size="18" class="mr-1.5 inline" />
+        <Sparkle size="18" />
         {app.busy ? 'working on it…' : `make ${staged.length || 'your'} file${staged.length === 1 ? '' : 's'} pretty`}
       </button>
     </div>

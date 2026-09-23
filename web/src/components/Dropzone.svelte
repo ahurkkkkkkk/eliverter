@@ -1,7 +1,9 @@
 <script lang="ts">
   /** Jelly dropzone: bobs idle, squashes on drag-over, wobbles on drop. */
-  import { CloudSun, Sparkles } from 'lucide-svelte';
+  import { Sparkles } from 'lucide-svelte';
   import { bubbleHover, filePlop, unlock } from '../lib/audio';
+  import Kitty from './Kitty.svelte';
+  import { MASCOT } from '../lib/state.svelte';
 
   let {
     onfiles,
@@ -56,13 +58,13 @@
 >
   <div class="relative">
     <div
-      class="grid place-items-center size-20 rounded-full bg-gradient-to-br from-cotton/40 to-babysky/40 text-bubblegum"
+      class="grid place-items-center size-20 rounded-full bg-gradient-to-br from-cotton/40 to-babysky/40"
       style="box-shadow: var(--shadow-rest);"
     >
       {#if over}
-        <Sparkles size="34" strokeWidth={2.2} />
+        <Sparkles size="34" strokeWidth={2.2} class="text-bubblegum" />
       {:else}
-        <CloudSun size="32" strokeWidth={2.1} />
+        <Kitty size={48} label={MASCOT} />
       {/if}
     </div>
     {#if justDropped}

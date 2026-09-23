@@ -79,7 +79,7 @@
     <div class="flex shrink-0 flex-col gap-1.5">
       {#if job.status === 'completed'}
         <a
-          class="pill grid place-items-center bg-cream no-underline text-[#0c4a44]"
+          class="icon-btn no-underline text-[#0c4a44]"
           href={job.download_url}
           download={job.nickname}
           aria-label="Save {job.nickname}"
@@ -89,7 +89,7 @@
         </a>
       {:else if job.status === 'failed'}
         <button
-          class="pill grid place-items-center bg-cream"
+          class="icon-btn"
           onclick={() => cancelJob(job.id)}
           aria-label="Discard {job.nickname}"
           title="Discard {job.nickname}"
@@ -98,7 +98,7 @@
         </button>
       {:else}
         <button
-          class="pill grid place-items-center bg-cream"
+          class="icon-btn"
           onclick={() => cancelJob(job.id)}
           aria-label="Stop {job.nickname}"
           title="Stop {job.nickname}"

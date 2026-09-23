@@ -215,6 +215,30 @@
     color: #0c4a44;
   }
 
+  /* Square home for a lone glyph. A .pill is padded for text, so an icon placed
+     in one sits low and floats wide of centre; these match the round status
+     badges on the left of the same card. */
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-cream);
+    border: 1px solid rgb(255 255 255 / 0.85);
+    box-shadow: var(--shadow-rest);
+    color: #6b4a8a;
+    transition: transform 0.2s var(--ease-jelly), box-shadow 0.2s var(--ease-jelly);
+  }
+  .icon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+  .icon-btn:active {
+    transform: scale(0.9);
+    box-shadow: var(--shadow-press);
+  }
+
   .glow-text {
     background: linear-gradient(
       100deg,
