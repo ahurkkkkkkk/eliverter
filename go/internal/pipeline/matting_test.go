@@ -3,7 +3,11 @@ package pipeline
 import (
 	"context"
 	"errors"
+	"image"
+	"image/color"
+	"image/png"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -323,6 +327,56 @@ func TestSpriteSourcesKeepTheirPixels(t *testing.T) {
 	if strings.Contains(footage.FilterGraph, "geq=") ||
 		strings.Contains(footage.FilterGraph, "neighbor") {
 		t.Errorf("footage should keep the smooth scaler: %q", footage.FilterGraph)
+	}
+}
+
+// A transparent GIF converted to GIF must stay transparent. Handed rgba
+// directly, the gif encoder flattens the frame onto an opaque matte, so the
+// sprite came back with a white background. The palette graph is what reserves
+// the transparent index, so this asserts the pixels rather than the arguments.
+func TestGifConversionPreservesNativeTransparency(t *testing.T) {
+	// Written as a PNG because lavfi's color source drops the alpha plane before
+	// anything downstream can see it, which made an early version of this fixture
+	// silently opaque.
+	sprite := image.NewNRGBA(image.Rect(0, 0, 64, 64))
+	for y := 20; y < 44; y++ {
+		for x := 20; x < 44; x++ {
+			sprite.SetNRGBA(x, y, color.NRGBA{R: 255, B: 255, A: 255})
+		}
+	}
+	pngPath := samplePath("transparent-in.png")
+	f, err := os.Create(pngPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := png.Encode(f, sprite); err != nil {
+		f.Close()
+		t.Fatal(err)
+	}
+	f.Close()
+
+	src := samplePath("transparent-in.gif")
+	mustRun(t, "-hide_banner", "-loglevel", "error", "-y", "-i", pngPath,
+		"-vf", "format=rgba,split[a][b];"+
+			"[a]palettegen=reserve_transparent=1:stats_mode=full[p];"+
+			"[b][p]paletteuse=dither=none:alpha_threshold=128",
+		"-loop", "0", src)
+	if raw, w, _ := rgbaAt(t, src); alphaAt(raw, w, 1, 1) > 40 {
+		t.Fatal("the fixture itself is opaque, so this test would prove nothing")
+	}
+
+	out := outPath(t, "transparent-out.gif")
+	if _, err := testEng.Convert(context.Background(), &Request{
+		Input: src, Output: out, TargetContainer: "gif", NoAudio: true,
+	}, nil); err != nil {
+		t.Fatal(err)
+	}
+	raw, w, _ := rgbaAt(t, out)
+	if a := alphaAt(raw, w, 1, 1); a > 40 {
+		t.Errorf("corner alpha = %d, want the backdrop still transparent instead of a white matte", a)
+	}
+	if a := alphaAt(raw, w, w/2, w/2); a < 200 {
+		t.Errorf("centre alpha = %d, want the subject left opaque", a)
 	}
 }
 

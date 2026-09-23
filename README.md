@@ -76,6 +76,12 @@ has alpha), so footage is untouched. Background erasure deliberately skips the
 clamp: keying leaves a soft blended edge on purpose, and hardening it would undo
 the blend the user just asked for.
 
+Every GIF encode goes through the palette graph, not just the erasing and pack
+paths. Handed rgba directly, the gif encoder flattens the frame onto an opaque
+matte, so a transparent sprite converted straight to GIF came back with a white
+background. A regression test asserts the corner alpha of a transparent GIF
+converted to GIF, and fails without that graph.
+
 ## Build
 
 Everything happens in WSL Ubuntu-24.04 at `/root/eliverter`.
@@ -204,6 +210,11 @@ On an Android 15 (API 35) x86_64 emulator, with the APK installed and running:
   file probes back as VP9 320x240 + Opus, 2.028s. Two more taps produced
   `savetest (1).webm` and `savetest (2).webm` rather than overwriting, and the
   status line reported "saved savetest.webm to Downloads/ELIVERSE".
+- Sprite transparency across every path: a transparent 48x48 GIF was pushed
+  through WebM, GIF, PNG, WebP and three packs, and the same sprite with a flat
+  backdrop too, 14 combinations in all. Every output now reads corner alpha 0.
+  Before the palette graph was applied to plain GIF conversion, that one path
+  returned corner `(252,252,255,255)`: an opaque white background.
 - APK signed and verified (v2 + v3), `classes.dex` at archive root, three `.so`
   files per ABI.
 

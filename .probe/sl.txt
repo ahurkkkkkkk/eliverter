@@ -1,0 +1,12 @@
+file s00.png
+duration 0.1
+file s01.png
+duration 0.1
+file s02.png
+duration 0.1
+file s03.png
+duration 0.1
+file s04.png
+duration 0.1
+file s05.png
+duration 0.1

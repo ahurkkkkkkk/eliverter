@@ -169,13 +169,15 @@ func (r *Resolver) BuildPlan(req *Request, info *MediaInfo) (*Plan, error) {
 		if erase.Color == "" {
 			return nil, errors.New("pipeline: erase colour was never resolved")
 		}
-		// A GIF's transparency comes from its palette, so keying must happen inside
-		// the quantiser graph: handing the gif encoder rgba produces a matte of the
-		// backdrop colour instead of an alpha index.
-		if cont.Key == "gif" && req.FilterComplex == "" {
-			complexGraph = paletteGraphWith(erase.Filters(), req.Width, req.Height,
-				graphFPS(req, info), 0, req.KeepPixels)
-		}
+	}
+
+	// A GIF's transparency is a palette entry, so every alpha-producing chain has
+	// to be quantised by palettegen/paletteuse. Handed rgba directly, the gif
+	// encoder flattens it onto an opaque matte instead, which is how a
+	// transparent sprite came back with a white background.
+	if wantVideo && cont.Key == "gif" && req.FilterComplex == "" {
+		complexGraph = paletteGraphWith(erase.Filters(), req.Width, req.Height,
+			graphFPS(req, info), 0, req.KeepPixels)
 	}
 
 	args := make([]string, 0, 24)
