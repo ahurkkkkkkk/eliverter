@@ -1,0 +1,298 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Pastel Neon Kawaii design tokens
+   Marshmallow bases sit underneath neon sugar accents; every surface is lit
+   from below so the whole app reads as a soft cloud rather than a UI.
+   --------------------------------------------------------------------------- */
+@theme {
+  --color-milk: #faf7fd;
+  --color-cream: #ffffff;
+  --color-lavender: #f4ecfb;
+  --color-periwinkle: #e0e7ff;
+
+  --color-bubblegum: #ff62a5;
+  --color-cotton: #ffa6d5;
+  --color-mint: #6ee7b7;
+  --color-babysky: #67e8f9;
+  --color-banana: #fde047;
+  --color-lilac: #c084fc;
+  --color-peach: #fdba74;
+
+  --radius-blob: 2rem;
+  --radius-pill: 999px;
+
+  --shadow-rest: 0 10px 25px -5px rgb(255 98 165 / 0.15),
+    0 8px 10px -6px rgb(103 232 249 / 0.1);
+  --shadow-lift: 0 20px 35px -5px rgb(255 98 165 / 0.3),
+    0 0 20px 2px rgb(110 231 183 / 0.25);
+  --shadow-press: 0 0 25px rgb(255 98 165 / 0.6),
+    inset 0 2px 4px rgb(255 255 255 / 0.6);
+
+  /* Every interactive transition is springy; nothing slides rigidly. */
+  --ease-jelly: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bubble: cubic-bezier(0.22, 1.4, 0.36, 1);
+
+  --animate-bob: bob 3.2s ease-in-out infinite;
+  --animate-wobble: wobble 0.62s var(--ease-jelly);
+  --animate-inflate: inflate 0.42s var(--ease-bubble) both;
+  --animate-drift: drift 14s linear infinite;
+  --animate-shimmer: shimmer 2.6s linear infinite;
+  --animate-ripple: ripple 0.7s var(--ease-jelly);
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(-4px);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+@keyframes wobble {
+  0% {
+    transform: scale(0.92);
+  }
+  45% {
+    transform: scale(1.04);
+  }
+  70% {
+    transform: scale(0.985);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes inflate {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 12vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  88% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(6px, -105vh, 0) rotate(220deg);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.06);
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------- */
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    color: #4a3557;
+    font-family:
+      ui-rounded, 'Hiragino Maru Gothic ProN', 'Quicksand', 'Varela Round',
+      'Segoe UI', system-ui, sans-serif;
+    background:
+      radial-gradient(70rem 40rem at 12% -10%, #ffe3f1 0%, transparent 60%),
+      radial-gradient(60rem 38rem at 92% 6%, #dff5ff 0%, transparent 58%),
+      radial-gradient(52rem 34rem at 50% 108%, #e9fff5 0%, transparent 60%),
+      var(--color-milk);
+    background-attachment: fixed;
+    overscroll-behavior-y: none;
+  }
+
+  ::selection {
+    background: var(--color-cotton);
+    color: #4a1030;
+  }
+}
+
+@layer components {
+  /* Milky marshmallow surface with a pastel underglow. */
+  .card {
+    background: color-mix(in oklab, var(--color-cream) 86%, transparent);
+    border: 1px solid rgb(255 255 255 / 0.75);
+    border-radius: var(--radius-blob);
+    box-shadow: var(--shadow-rest);
+    backdrop-filter: blur(16px) saturate(130%);
+    transition:
+      box-shadow 0.42s var(--ease-jelly),
+      transform 0.42s var(--ease-jelly);
+  }
+  .card:hover {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-3px);
+  }
+
+  .btn {
+    position: relative;
+    border: none;
+    border-radius: var(--radius-pill);
+    padding: 0.85rem 1.6rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: #6b0f3a;
+    background: linear-gradient(
+      135deg,
+      var(--color-cotton),
+      var(--color-bubblegum) 55%,
+      var(--color-lilac)
+    );
+    box-shadow: var(--shadow-rest);
+    transition: transform 0.18s var(--ease-jelly);
+    will-change: transform;
+  }
+  /* Candy gloss on the top edge so a press reads as indentation. */
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 2px 6px 55% 6px;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(rgb(255 255 255 / 0.7), transparent);
+    pointer-events: none;
+  }
+  .btn:active {
+    transform: scale(0.93);
+    box-shadow: var(--shadow-press);
+  }
+  .btn:disabled {
+    filter: grayscale(0.35) opacity(0.6);
+    transform: none;
+  }
+
+  .pill {
+    border-radius: var(--radius-pill);
+    padding: 0.4rem 0.95rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    background: var(--color-lavender);
+    color: #6b4a8a;
+    border: 1px solid rgb(255 255 255 / 0.8);
+    transition: transform 0.2s var(--ease-jelly);
+  }
+  .pill[data-active='true'] {
+    background: linear-gradient(120deg, var(--color-mint), var(--color-babysky));
+    color: #0c4a44;
+  }
+
+  .glow-text {
+    background: linear-gradient(
+      100deg,
+      var(--color-bubblegum),
+      var(--color-lilac),
+      var(--color-babysky),
+      var(--color-bubblegum)
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: var(--animate-shimmer);
+  }
+
+  .progress-track {
+    height: 0.7rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-periwinkle);
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(90deg, var(--color-cotton), var(--color-babysky), var(--color-mint));
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+    transition: width 0.45s var(--ease-jelly);
+  }
+
+  /* Jelly dropzone: idle bob, squashed stretch on drag-over, candy-cane rim. */
+  .dropzone {
+    border-radius: var(--radius-blob);
+    border: 3px dashed color-mix(in oklab, var(--color-cotton) 70%, white);
+    animation: var(--animate-bob);
+    transition: transform 0.34s var(--ease-jelly);
+  }
+  .dropzone[data-over='true'] {
+    animation: none;
+    transform: scaleX(1.05) scaleY(0.96);
+    border-style: solid;
+    border-color: transparent;
+    background-image:
+      linear-gradient(var(--color-cream), var(--color-cream)),
+      repeating-linear-gradient(
+        115deg,
+        var(--color-bubblegum) 0 14px,
+        var(--color-banana) 14px 28px,
+        var(--color-mint) 28px 42px,
+        var(--color-babysky) 42px 56px
+      );
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+  .dropzone[data-dropped='true'] {
+    animation: var(--animate-wobble);
+  }
+
+  .stagger {
+    animation: var(--animate-inflate);
+    animation-delay: calc(var(--i, 0) * 35ms);
+    transform-origin: top left;
+  }
+
+  .sparkle {
+    position: absolute;
+    pointer-events: none;
+    animation: var(--animate-drift);
+    opacity: 0.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
