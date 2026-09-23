@@ -118,18 +118,18 @@
 <main class="relative mx-auto flex min-h-dvh w-full max-w-3xl flex-col gap-6 px-4 pb-24 pt-[max(2rem,env(safe-area-inset-top))]">
   <header class="flex items-center justify-between gap-4">
     <div>
-      <h1 class="glow-text text-4xl font-black tracking-tight sm:text-5xl">Eliverter</h1>
+      <h1 class="flex items-center gap-3">
+        <span
+          class="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-cotton/35 to-babysky/35"
+          style="box-shadow: var(--shadow-rest);"
+        >
+          <Kitty size={34} label={MASCOT} />
+        </span>
+        <span class="glow-text text-4xl font-black tracking-tight sm:text-5xl">Eliverter</span>
+      </h1>
       <p class="mt-1 text-sm font-semibold text-[#8a6f9b]">
         your pastel media sanctuary · {MASCOT} is in the oven
       </p>
-    </div>
-
-    <div
-      class="grid size-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-cotton/35 to-babysky/35"
-      style="box-shadow: var(--shadow-rest);"
-      title="{MASCOT}"
-    >
-      <Kitty size={38} />
     </div>
 
     <button

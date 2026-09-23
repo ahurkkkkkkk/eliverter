@@ -150,6 +150,11 @@ On an Android 15 (API 35) x86_64 emulator, with the APK installed and running:
   come back keyed. A GIF erase keeps the source canvas (320x240 in, 320x240 out,
   60000 transparent pixels against 16800 subject pixels) instead of being
   upscaled into the pack box.
+- Format chooser on the phone: the bubble opens above the card that follows it
+  (`.card` sets `backdrop-filter`, so every sibling card is its own stacking
+  context and the later one used to swallow the menu), stops short of the
+  floating status line, and flips upward when there is more room above than
+  below.
 - Erased ready packs: `discord_emote` renders a 128x128 GIF with a transparent
   corner and an opaque subject, and `telegram_animated` a 512x512 WebM with
   `alpha_mode` set — both under their size ceilings.
