@@ -8,6 +8,22 @@ Named **Eliverter** (the original brief spelled it "Ehliverter"). Made by
 [ahura](https://ahura.site/resume), for my love eghlima, to make her life easier.
 The same dedication is in the app's footer.
 
+## Where files go
+
+Tapping save on a finished job writes to **`Downloads/ELIVERSE`**, which the app
+creates on first use. From Android 10 up that goes through the media provider
+(`MediaStore.Downloads` with a `RELATIVE_PATH`), so it needs no permission and
+the file shows up in any file manager, Samsung's My Files included. Only Android
+7 to 9 ask anything, because on those releases the app writes the file itself and
+needs `WRITE_EXTERNAL_STORAGE`; the manifest caps that permission at API 28 so
+newer versions never see a prompt.
+
+`DownloadManager` is deliberately not used. Its
+`setDestinationInExternalPublicDir` is rejected once the app targets SDK 29 or
+later, so the previous implementation appeared to work and silently saved nothing
+on Samsung devices. Re-saving the same file never overwrites: the media provider
+returns `savetest (1).webm`, `savetest (2).webm` and so on.
+
 ## Background erasure
 
 Any conversion into an alpha-capable target (`webm`, `gif`, `webp`, `png`,
@@ -162,6 +178,12 @@ On an Android 15 (API 35) x86_64 emulator, with the APK installed and running:
 - `go test ./...` green, including end-to-end FFmpeg conversions, every pack's
   size ceiling, exact canvas, frame rate and alpha rules, and pixel-level
   assertions that the erased alpha is real rather than just requested.
+- Saving on the phone: tapping the download control on a finished job created
+  `/sdcard/Download/ELIVERSE/savetest.webm` at the exact output size, indexed by
+  the media provider at `/storage/emulated/0/Download/ELIVERSE/`, and the pulled
+  file probes back as VP9 320x240 + Opus, 2.028s. Two more taps produced
+  `savetest (1).webm` and `savetest (2).webm` rather than overwriting, and the
+  status line reported "saved savetest.webm to Downloads/ELIVERSE".
 - APK signed and verified (v2 + v3), `classes.dex` at archive root, three `.so`
   files per ABI.
 
