@@ -51,6 +51,10 @@ type Request struct {
 	FilterComplex string
 
 	StripMetadata bool // drop EXIF/XMP/ICC so sticker parsers do not reject the file
+	// KeepPixels treats the source as pixel art: nearest-neighbour scaling and a
+	// hard alpha clamp instead of a soft resample. Set from the probe, not by the
+	// caller, because a smooth scaler is right for footage and wrong for sprites.
+	KeepPixels bool
 	// Erase keys the background out of the video stream. Nil leaves the frame
 	// alone. Its Color must already be resolved: BuildPlan runs no subprocess.
 	Erase *Erase
@@ -170,7 +174,7 @@ func (r *Resolver) BuildPlan(req *Request, info *MediaInfo) (*Plan, error) {
 		// backdrop colour instead of an alpha index.
 		if cont.Key == "gif" && req.FilterComplex == "" {
 			complexGraph = paletteGraphWith(erase.Filters(), req.Width, req.Height,
-				graphFPS(req, info), 0)
+				graphFPS(req, info), 0, req.KeepPixels)
 		}
 	}
 
@@ -414,7 +418,10 @@ var animationCapable = map[string]bool{
 var animatesByDefault = map[string]bool{"gif": true}
 
 func (r *Resolver) videoFilters(req *Request, info *MediaInfo) []string {
-	f := make([]string, 0, 3)
+	f := make([]string, 0, 4)
+	if req.KeepPixels {
+		f = append(f, alphaClampFilters...)
+	}
 	if req.Width > 0 || req.Height > 0 {
 		f = append(f, scaleFilter(req))
 	}
@@ -424,14 +431,45 @@ func (r *Resolver) videoFilters(req *Request, info *MediaInfo) []string {
 	return f
 }
 
+// IsPixelArt reports whether a source should be resampled like sprite sheets
+// rather than like footage: an indexed animation or a paletted still that
+// already carries transparency.
+func IsPixelArt(info *MediaInfo) bool {
+	if info == nil || !info.HasAlpha {
+		return false
+	}
+	switch info.VideoCodec {
+	case "gif", "apng":
+		return true
+	}
+	return info.PixelFormat == "pal8" || info.PixelFormat == "paletted8"
+}
+
+// alphaClampFilters harden a sprite's existing alpha before anything resamples
+// it. Anti-aliased edges in the source carry near-white RGB under a low alpha,
+// and any smooth filter spreads that colour outward as a visible halo. Clamping
+// to fully transparent or fully opaque first, on the source's own small grid,
+// costs nothing and keeps the silhouette clean.
+var alphaClampFilters = []string{
+	"format=rgba",
+	"geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='if(gt(alpha(X,Y),10),255,0)'",
+}
+
 func scaleFilter(req *Request) string {
+	flags := ""
+	if req.KeepPixels {
+		// Lanczos and its friends average across the sprite's edge, which is
+		// exactly the blur that reads as a white outline on a sticker.
+		flags = ":flags=neighbor"
+	}
 	switch {
 	case req.Width > 0 && req.Height > 0:
-		return fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", req.Width, req.Height)
+		return fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease%s",
+			req.Width, req.Height, flags)
 	case req.Width > 0:
-		return fmt.Sprintf("scale=%d:-2", req.Width)
+		return fmt.Sprintf("scale=%d:-2%s", req.Width, flags)
 	default:
-		return fmt.Sprintf("scale=-2:%d", req.Height)
+		return fmt.Sprintf("scale=-2:%d%s", req.Height, flags)
 	}
 }
 

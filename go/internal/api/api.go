@@ -286,6 +286,7 @@ func (a *Server) createJob(c *gin.Context) {
 		SampleRate: form.SampleRate, Channels: form.Channels,
 		StartTime: form.StartTime, Duration: form.Duration,
 		CustomFilters: form.CustomFilters, StripMetadata: form.StripMetadata,
+		KeepPixels: pipeline.IsPixelArt(info),
 	}
 	req.Erase = form.erase()
 

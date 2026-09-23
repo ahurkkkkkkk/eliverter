@@ -279,6 +279,9 @@ func (e *Engine) packRequest(p Pack, input, output string, info *MediaInfo, eras
 	if p.AudioCodec != "" {
 		req.AudioCodec = p.AudioCodec
 	}
+	// Stickers are where sprites actually land, so the source decides whether the
+	// scaler may smooth anything.
+	req.KeepPixels = IsPixelArt(info)
 	if p.MaxDuration > 0 {
 		req.Duration = p.MaxDuration
 	}
@@ -313,7 +316,7 @@ func (e *Engine) packRequest(p Pack, input, output string, info *MediaInfo, eras
 		// the same graph: a GIF's transparency is a palette entry, so filters on a
 		// separate -vf chain never reach paletteuse.
 		req.FilterComplex = paletteGraphWith(erase.Filters(), req.Width, req.Height,
-			graphFPS(req, info), 0)
+			graphFPS(req, info), 0, req.KeepPixels)
 		req.ExtraFilters = nil
 	}
 	return req

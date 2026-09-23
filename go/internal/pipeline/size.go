@@ -250,11 +250,11 @@ func apply(plan *Request, b SizeBudget) {
 	}
 	// Only the palette graph is owned by the budget rung. ExtraFilters carries
 	// the caller's geometry (sticker scale and pad rules) and must survive, and
-	// so must any keying filters -- dropping them would hand back an opaque
+	// so must any keying filters - dropping them would hand back an opaque
 	// background on the rung that finally fits.
 	if b.Palette {
 		plan.FilterComplex = paletteGraphWith(plan.Erase.Filters(), plan.Width, plan.Height,
-			plan.FPS, b.Colors)
+			plan.FPS, b.Colors, plan.KeepPixels)
 	} else {
 		plan.FilterComplex = ""
 	}
@@ -265,44 +265,52 @@ func apply(plan *Request, b SizeBudget) {
 //
 // Geometry is normalised once, then the stream is split so the palette is
 // derived from the same frames that consume it.
-func PaletteGraph(width, height int, fps float64) string {
-	return paletteGraph(width, height, fps, 0)
+func PaletteGraph(width, height int, fps float64, keepPixels bool) string {
+	return paletteGraph(width, height, fps, 0, keepPixels)
 }
 
 // paletteGraph builds the single-pass quantiser. colors caps the palette, which
 // is the real size lever for indexed output: a GIF has no quality knob, so the
 // only way down after geometry is fewer entries.
-func paletteGraph(width, height int, fps float64, colors int) string {
-	return paletteGraphWith(nil, width, height, fps, colors)
+func paletteGraph(width, height int, fps float64, colors int, keepPixels bool) string {
+	return paletteGraphWith(nil, width, height, fps, colors, keepPixels)
 }
 
 // paletteGraphWith prepends extra filters -- background keying, for instance --
 // so they run before the split. A GIF's alpha comes from its palette, so
 // anything that creates an alpha channel has to be inside this graph rather than
 // on a separate -vf chain.
-func paletteGraphWith(prefix []string, width, height int, fps float64, colors int) string {
-	// No geometry means keep the source canvas. Inventing a 512 box here would
-	// upscale a small clip, and a free-form GIF conversion asks for none.
+func paletteGraphWith(prefix []string, width, height int, fps float64, colors int,
+	keepPixels bool) string {
+	smooth := "lanczos"
+	if keepPixels {
+		smooth = "neighbor"
+	}
 	var scale string
 	switch {
 	case width > 0 && height > 0:
 		// Both edges given means an exact canvas: fit inside it, then pad with
 		// transparent colour instead of stretching the artwork.
 		scale = fmt.Sprintf(
-			"scale=%d:%d:force_original_aspect_ratio=decrease:flags=lanczos,"+
+			"scale=%d:%d:force_original_aspect_ratio=decrease:flags=%s,"+
 				"pad=%d:%d:(ow-iw)/2:(oh-ih)/2:color=black@0.0",
-			width, height, width, height)
+			width, height, smooth, width, height)
 	case width > 0:
-		scale = fmt.Sprintf("scale=%d:-2:flags=lanczos", width)
+		scale = fmt.Sprintf("scale=%d:-2:flags=%s", width, smooth)
 	case height > 0:
-		scale = fmt.Sprintf("scale=-2:%d:flags=lanczos", height)
+		scale = fmt.Sprintf("scale=-2:%d:flags=%s", height, smooth)
 	}
 
-	steps := make([]string, 0, len(prefix)+2)
+	steps := make([]string, 0, len(prefix)+3)
 	if fps > 0 {
 		steps = append(steps, "fps="+strconv.FormatFloat(fps, 'f', -1, 64))
 	}
 	steps = append(steps, prefix...)
+	// A keying pass already decides alpha per pixel and may leave a deliberate
+	// soft edge behind, so only clamp when nothing else touched the alpha.
+	if keepPixels && len(prefix) == 0 {
+		steps = append(steps, alphaClampFilters...)
+	}
 	if scale != "" {
 		steps = append(steps, scale)
 	}

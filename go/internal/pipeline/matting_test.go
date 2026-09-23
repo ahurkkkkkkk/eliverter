@@ -277,6 +277,55 @@ func TestGifPackWeavesKeyingIntoItsCanvas(t *testing.T) {
 	}
 }
 
+// A sprite's own alpha must survive the scaler. Lanczos averages across the
+// silhouette and spreads the near-white edge colour outward as a halo, so an
+// indexed source with transparency has to be clamped and resampled with
+// neighbour instead, while footage keeps the smooth filter.
+func TestSpriteSourcesKeepTheirPixels(t *testing.T) {
+	if !IsPixelArt(&MediaInfo{VideoCodec: "gif", HasAlpha: true}) {
+		t.Error("a transparent GIF is a sprite")
+	}
+	if !IsPixelArt(&MediaInfo{PixelFormat: "pal8", HasAlpha: true}) {
+		t.Error("a paletted still with alpha is a sprite")
+	}
+	if IsPixelArt(&MediaInfo{VideoCodec: "h264"}) {
+		t.Error("footage is not a sprite")
+	}
+	if IsPixelArt(&MediaInfo{VideoCodec: "gif"}) {
+		t.Error("a GIF without transparency has no alpha to protect")
+	}
+
+	sprite, err := eraseResolver().BuildPlan(&Request{
+		Input: "in.gif", Output: "out.webm", TargetContainer: "webm", NoAudio: true,
+		Width: 512, Height: 512, KeepPixels: true,
+	}, &MediaInfo{VideoCodec: "gif", HasAlpha: true, Width: 40, Height: 40})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(sprite.FilterGraph, "geq=") {
+		t.Errorf("the alpha clamp is missing, so edges will bleed: %q", sprite.FilterGraph)
+	}
+	if !strings.Contains(sprite.FilterGraph, "flags=neighbor") {
+		t.Errorf("a sprite must not be smoothed: %q", sprite.FilterGraph)
+	}
+	if strings.Index(sprite.FilterGraph, "geq=") > strings.Index(sprite.FilterGraph, "scale=") {
+		t.Errorf("the clamp has to run before the scale, on the source's own grid: %q",
+			sprite.FilterGraph)
+	}
+
+	footage, err := eraseResolver().BuildPlan(&Request{
+		Input: "in.mp4", Output: "out.webm", TargetContainer: "webm", NoAudio: true,
+		Width: 512, Height: 512,
+	}, &MediaInfo{VideoCodec: "h264", Width: 1280, Height: 720})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(footage.FilterGraph, "geq=") ||
+		strings.Contains(footage.FilterGraph, "neighbor") {
+		t.Errorf("footage should keep the smooth scaler: %q", footage.FilterGraph)
+	}
+}
+
 func argAfter(args []string, flag string) string {
 	for i, a := range args {
 		if a == flag && i+1 < len(args) {

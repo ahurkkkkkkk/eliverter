@@ -56,6 +56,26 @@ In the UI the switch is "pop the background out". It only appears for targets
 that can store transparency; pick `mp4` while it is on and the panel says so
 plainly instead of queueing a job that would quietly return an opaque file.
 
+## Sprites keep their pixels
+
+A GIF or paletted still that already carries transparency is resampled with
+`flags=neighbor` after clamping its alpha to fully transparent or fully opaque,
+instead of the `lanczos` used for footage. Smooth filters average across the
+silhouette, and because the pixels just inside a sprite's edge are near-white,
+that average spreads a visible halo outward.
+
+Measured on a 48x48 test sprite scaled into a 512x512 canvas and encoded at the
+same CRF: the old chain left 107,758 semi-transparent pixels of which 63,876 were
+translucent white; the new chain leaves 7,036 and 4,303, in half the bytes. A
+GIF pack comes out with 0 semi-transparent pixels. Encoding the same clamped
+frames losslessly gives 0 too, so what remains on the WebM path is VP9's lossy
+alpha plane rather than the filter chain.
+
+`IsPixelArt` keys off the probe (a `gif`/`apng` stream or a `pal8` format that
+has alpha), so footage is untouched. Background erasure deliberately skips the
+clamp: keying leaves a soft blended edge on purpose, and hardening it would undo
+the blend the user just asked for.
+
 ## Build
 
 Everything happens in WSL Ubuntu-24.04 at `/root/eliverter`.

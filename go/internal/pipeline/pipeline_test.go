@@ -406,7 +406,7 @@ func TestPaletteGraphIsAcceptedByFFmpeg(t *testing.T) {
 	out := outPath(t, "palette.gif")
 	req := &Request{Input: sample(t, "clip.mp4"), Output: out,
 		TargetContainer: "gif", VideoCodec: "gif", Width: 128, Height: 128, FPS: 12,
-		FilterComplex: PaletteGraph(128, 128, 12)}
+		FilterComplex: PaletteGraph(128, 128, 12, false)}
 	if _, err := testEng.Convert(context.Background(), req, nil); err != nil {
 		t.Fatalf("the palette filter graph was rejected: %v", err)
 	}
